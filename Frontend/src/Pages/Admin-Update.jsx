@@ -10,11 +10,11 @@ const AdminUpdate = () => {
         phone: "",
     });
 
-    const { id } = useParams(); // ✅ FIX
+    const { id } = useParams(); 
     const navigate = useNavigate();
     const { authorizationToken, API } = useAuth();
 
-    // ✅ Get single user
+    //  Get single user
     const getSingleUserData = async () => {
         try {
             const response = await fetch(
@@ -51,9 +51,9 @@ const AdminUpdate = () => {
         if (id) {
             getSingleUserData();
         }
-    }, [id]); // ✅ FIX
+    }, [id]); //  FIX
 
-    // ✅ Input handler
+    //  Input handler
     const handleInput = (e) => {
         const { name, value } = e.target;
         setData((prev) => ({
@@ -62,7 +62,7 @@ const AdminUpdate = () => {
         }));
     };
 
-    // ✅ Update user
+    //  Update user
     const handleSubmit = async (e) => {
         e.preventDefault();
 

@@ -1,62 +1,78 @@
-import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../Store/auth";
 
 const Cart = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { cart, addToCart, removeFromCart, decreaseQty } = useAuth();
 
-  // ✅ Get data from previous page
-  const initialCart = location.state || [];
-
-  const [cart, setCart] = useState(initialCart);
-
-  
-  // Remove Item
-  const handleRemove = (index) => {
-    const updated = cart.filter((_, i) => i !== index);
-    setCart(updated);
-  };
-
-  // Total Price
-  const totalPrice = cart.reduce(
-    (total, item) => total + Number(item.price),
-    0
-  );
-
-  // Go To Payment
-  const handleGoToPayment = () => {
-    navigate("/process", { state: cart });
-  };
+  const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+  const totalPrice = cart.reduce((total, item) => total + item.price * item.quantity, 0);
 
   return (
-    <div className="max-w-xl mx-auto mt-10">
+    <div className="max-w-2xl mx-auto mt-10 px-4">
 
-      <h1 className="text-2xl font-bold text-center mb-6">
-        My Cart 🛒
-      </h1>
+      <h1 className="text-2xl font-bold text-center mb-6">My Cart 🛒</h1>
 
-      {/* ✅ Cart Items */}
       {cart.length === 0 ? (
-        <p className="text-center">No products in cart</p>
+        <div className="text-center py-20">
+          <p className="text-gray-500 text-lg mb-4">Cart is empty</p>
+          <button
+            onClick={() => navigate("/")}
+            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700"
+          >
+            Continue Shopping
+          </button>
+        </div>
       ) : (
         <>
-          <div className="space-y-4 mb-4">
-            {cart.map((product, index) => (
+          <div className="space-y-4 mb-6">
+            {cart.map((item) => (
               <div
-                key={index}
-                className="border p-4 rounded shadow flex justify-between items-center bg-white"
+                key={item.id}
+                className="border p-4 rounded-xl shadow-sm flex justify-between items-center bg-white"
               >
-                <div>
-                  <p className="font-bold">{product.title || product.name}</p>
-                  <p className="text-gray-600">{product.category}</p>
+                {/* LEFT */}
+                <div className="flex items-center gap-4">
+                  {item.image && (
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                  )}
+                  <div>
+                    <p className="font-semibold">{item.title || item.name}</p>
+                    {item.category && (
+                      <p className="text-sm text-gray-500">{item.category}</p>
+                    )}
+                    <p className="text-orange-600 font-bold">₹{item.price}</p>
+                  </div>
                 </div>
 
-                <div className="text-right">
-                  <p className="font-semibold">₹{product.price}</p>
-
+                {/* RIGHT */}
+                <div className="flex flex-col items-end gap-2">
+                  <div className="flex items-center border rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => decreaseQty(item.id)}
+                      className="px-3 py-1 bg-gray-100 hover:bg-gray-200 font-bold text-lg"
+                    >
+                      −
+                    </button>
+                    <span className="px-3 font-semibold">{item.quantity}</span>
+                    <button
+                      onClick={() => addToCart(item)}
+                      className="px-3 py-1 bg-gray-100 hover:bg-gray-200 font-bold text-lg"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-700">
+                    Subtotal: ₹{item.price * item.quantity}
+                  </p>
                   <button
-                    onClick={() => handleRemove(index)}
-                    className="text-red-500 text-sm mt-1"
+                    onClick={() => removeFromCart(item.id)}
+                    className="text-red-500 text-sm hover:underline"
                   >
                     Remove
                   </button>
@@ -65,15 +81,13 @@ const Cart = () => {
             ))}
           </div>
 
-          {/* ✅ Total */}
-          <div className="text-right font-bold text-lg mb-4">
-            Total: ₹{totalPrice}
+          <div className="text-right font-bold text-xl mb-4">
+            Total ({totalItems} items): ₹{totalPrice}
           </div>
 
-          {/* ✅ Go To Payment */}
           <button
-            onClick={handleGoToPayment}
-            className="w-full bg-green-600 text-white px-4 py-2 rounded"
+            onClick={() => navigate("/process", { state: cart })}
+            className="w-full bg-green-600 text-white px-4 py-3 rounded-xl font-semibold hover:bg-green-700 transition"
           >
             Go to Payment
           </button>
