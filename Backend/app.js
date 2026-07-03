@@ -27,7 +27,7 @@ app.use("/api/admin", adminRoute);
 
 
 app.use(errorMiddleware);
-app.use((req, res) =>{
+app.use('/', (req, res) =>{
     res.status.json({msg:"server is running"});
 })
 
